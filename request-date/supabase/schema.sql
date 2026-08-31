@@ -19,6 +19,7 @@ create table if not exists public.payments (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   transaction_ref text not null unique,
+  flw_ref text,
   amount numeric(12,2) not null default 1500,
   status text not null default 'successful',
   created_at timestamptz not null default now()
@@ -27,18 +28,49 @@ create table if not exists public.payments (
 alter table public.profiles enable row level security;
 alter table public.payments enable row level security;
 
+alter table public.payments add column if not exists flw_ref text;
+
+-- Remove any prior policies on these tables, including legacy names from earlier deployments.
+-- This keeps the migration safe to re-run after policy changes.
+do $$
+declare
+  policy_record record;
+begin
+  for policy_record in
+    select policyname, tablename
+    from pg_policies
+    where schemaname = 'public'
+      and tablename in ('profiles', 'payments')
+  loop
+    execute format('drop policy if exists %I on public.%I', policy_record.policyname, policy_record.tablename);
+  end loop;
+end $$;
+
+create or replace function public.can_update_profile(profile_id uuid, next_has_paid boolean)
+returns boolean
+language sql
+security definer
+set search_path = public
+as $$
+  select auth.uid() = profile_id
+    and next_has_paid = coalesce((select p.has_paid from public.profiles p where p.id = profile_id), false);
+$$;
+revoke all on function public.can_update_profile(uuid, boolean) from public;
+grant execute on function public.can_update_profile(uuid, boolean) to authenticated;
+
 create policy "Members read their own profile" on public.profiles
   for select using (auth.uid() = id);
 create policy "Members create their own profile" on public.profiles
-  for insert with check (auth.uid() = id);
-create policy "Members update their own profile" on public.profiles
-  for update using (auth.uid() = id) with check (auth.uid() = id);
+  for insert with check (auth.uid() = id and has_paid = false);
+create policy "Members update editable profile fields" on public.profiles
+  for update using (auth.uid() = id)
+  with check (public.can_update_profile(id, has_paid));
 create policy "Members delete their own profile" on public.profiles
   for delete using (auth.uid() = id);
 create policy "Members read their own payments" on public.payments
   for select using (auth.uid() = user_id);
-create policy "Members record their own successful payment" on public.payments
-  for insert with check (auth.uid() = user_id);
+-- Payment inserts and has_paid changes are server-authoritative after Flutterwave verification.
+-- The service-role payment verifier bypasses RLS; browser clients receive no insert policy.
 
 create or replace view public.public_profiles as
   select id, full_name, age, relationship_status, looking_for, bio, image_url_1, image_url_2, created_at

@@ -108,3 +108,31 @@
   html { scroll-behavior: auto; }
   .skeleton-shimmer { animation: none; }
 }
+
+@keyframes payment-success-pop {
+  0% { opacity: 0; transform: translateY(14px) scale(.96); }
+  70% { opacity: 1; transform: translateY(-3px) scale(1.01); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes payment-success-icon {
+  0% { transform: scale(.72) rotate(-8deg); opacity: .2; }
+  65% { transform: scale(1.08) rotate(3deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+@keyframes payment-success-spark {
+  0%, 100% { opacity: 0; transform: translateY(8px) scale(.7) rotate(0); }
+  35%, 70% { opacity: 1; transform: translateY(-8px) scale(1) rotate(20deg); }
+}
+
+.payment-celebration-card { animation: payment-success-pop 360ms cubic-bezier(.23,1,.32,1) both; }
+.payment-success-icon { animation: payment-success-icon 520ms cubic-bezier(.23,1,.32,1) 80ms both; }
+.celebration-spark { position: absolute; width: .6rem; height: .6rem; border-radius: 999px; background: #22c55e; animation: payment-success-spark 1.8s ease-in-out infinite; }
+.celebration-spark-one { top: 18%; left: 18%; background: #86efac; animation-delay: 120ms; }
+.celebration-spark-two { top: 25%; right: 18%; background: #4ade80; animation-delay: 360ms; }
+.celebration-spark-three { bottom: 26%; left: 12%; background: #bbf7d0; animation-delay: 620ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .payment-celebration-card, .payment-success-icon, .celebration-spark { animation: none; }
+}

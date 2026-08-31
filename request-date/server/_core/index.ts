@@ -47,12 +47,12 @@ async function startServer() {
       if (!identity.ok) return res.status(401).json({ error: "Invalid member session" });
       const member = await identity.json() as { id: string; email?: string };
       const verification = await fetch(`https://api.flutterwave.com/v3/transactions/${transaction_id}/verify`, { headers: { Authorization: `Bearer ${flutterwaveSecret}` } });
-      const payment = await verification.json() as { status?: string; data?: { status?: string; amount?: number; currency?: string; tx_ref?: string } };
-      const verified = verification.ok && payment.status === "success" && payment.data?.status === "successful" && payment.data.currency === "NGN" && Number(payment.data.amount) >= 1500;
+      const payment = await verification.json() as { status?: string; data?: { status?: string; amount?: number; currency?: string; tx_ref?: string; flw_ref?: string } };
+      const verified = verification.ok && payment.status === "success" && (payment.data?.status === "successful" || payment.data?.status === "completed") && payment.data.currency === "NGN" && Number(payment.data.amount) >= 1500;
       if (!verified) return res.status(402).json({ error: "Payment could not be verified" });
       const headers = { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates" };
       const reference = payment.data?.tx_ref || String(transaction_id);
-      const saved = await fetch(`${supabaseUrl}/rest/v1/payments`, { method: "POST", headers, body: JSON.stringify({ user_id: member.id, transaction_ref: reference, amount: 1500, status: "successful" }) });
+      const saved = await fetch(`${supabaseUrl}/rest/v1/payments`, { method: "POST", headers, body: JSON.stringify({ user_id: member.id, transaction_ref: reference, flw_ref: payment.data?.flw_ref || String(transaction_id), amount: 1500, status: "successful" }) });
       if (!saved.ok && saved.status !== 409) return res.status(500).json({ error: "Could not persist payment" });
       const unlocked = await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${member.id}`, { method: "PATCH", headers, body: JSON.stringify({ has_paid: true }) });
       if (!unlocked.ok) return res.status(500).json({ error: "Could not unlock access" });

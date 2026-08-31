@@ -54,8 +54,45 @@
 - [x] Run regression checks, build, and responsive preview verification
 - [x] Verify skeleton-loading layout at a mobile/narrow viewport after the latest UI change
 
-- [ ] Inspect Manus and teamfeji.github.io repository branches and contents
-- [ ] Prepare a safe Request Date source export without secrets, node_modules, dist, or build artifacts
-- [ ] Push the complete source export to the Manus repository
-- [ ] Push the complete source export to teamfeji.github.io
-- [ ] Verify both remote branches and repository contents
+- [x] Inspect Manus and teamfeji.github.io repository branches and contents
+- [x] Prepare a safe Request Date source export without secrets, node_modules, dist, or build artifacts
+- [x] Push the complete source export to the Manus repository
+- [x] Push the complete source export to teamfeji.github.io
+- [x] Verify both remote branches and repository contents
+
+- [x] Add root-level vercel.json with the frontend build output and SPA route rewrites
+- [x] Validate the Vercel configuration against the production build and route setup
+- [x] Push vercel.json to the Manus repository
+- [x] Push vercel.json to teamfeji.github.io
+- [x] Verify both remote commits contain the Vercel configuration
+
+- [x] Fix Flutterwave successful/completed callback to persist `profiles.has_paid` immediately
+- [x] Record successful payment transactions with a stable reference and ₦1,500 amount
+- [x] Update local paid profile state and refresh all live profiles after payment success
+- [x] Hydrate the signed-in user profile and paid status on initial load and auth changes
+- [x] Prevent the payment modal from opening for persisted paid members
+- [x] Add support email banner/footer and payment-modal mailto help
+- [x] Add Contact Support link to the top navigation
+- [x] Preserve the white/light-green theme
+- [x] Add payment callback and persistence regression tests
+- [x] Run type checks, tests, production build, and responsive verification
+- [x] Lock down Supabase RLS so clients cannot directly set `profiles.has_paid` or insert authoritative successful payment records
+- [x] Keep instant unlock UX based on verified server success and local state refresh
+- [x] Add an owned pre-checkout payment-help dialog with a support mailto link
+- [x] Apply the hardened payment RLS and `flw_ref` schema migration to the live Supabase project and verify browser writes are rejected
+- [x] Make the payment RLS migration remove unknown legacy profile/payment policies idempotently
+- [x] Reapply the hardened policy migration and rerun authenticated profile and payment write probes
+
+- [x] Add a celebratory success animation that starts only after verified payment and modal close
+- [x] Show an immediate payment-success toast after trusted verification
+- [x] Respect reduced-motion preferences for the celebration
+- [x] Add regression coverage for the post-payment success state
+- [x] Run type checks, tests, production build, and desktop/mobile visual verification
+- [x] Extract the verified-and-closed celebration gate used by the payment callback lifecycle
+- [x] Test that the celebration gate waits for checkout close and cannot fire twice for one payment
+- [x] Re-run the full regression suite and visual verification after lifecycle coverage
+
+- [ ] Inspect current Request Date changes and connected GitHub repository export state
+- [ ] Prepare a safe current-source export without secrets or generated artifacts
+- [ ] Push all current changes to the connected GitHub repositories
+- [ ] Verify the resulting remote commits and file contents
