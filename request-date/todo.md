@@ -92,7 +92,7 @@
 - [x] Test that the celebration gate waits for checkout close and cannot fire twice for one payment
 - [x] Re-run the full regression suite and visual verification after lifecycle coverage
 
-- [ ] Inspect current Request Date changes and connected GitHub repository export state
-- [ ] Prepare a safe current-source export without secrets or generated artifacts
-- [ ] Push all current changes to the connected GitHub repositories
-- [ ] Verify the resulting remote commits and file contents
+- [x] Inspect current Request Date changes and connected GitHub repository export state
+- [x] Prepare a safe current-source export without secrets or generated artifacts
+- [x] Push all current changes to the connected GitHub repositories
+- [x] Verify the resulting remote commits and file contents
