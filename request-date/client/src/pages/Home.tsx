@@ -4,8 +4,9 @@ import { signUpOrSignIn, upsertProfileRecord } from "@/lib/auth-flow";
 import { profileImages } from "@/lib/profile-view";
 import { fetchLiveProfiles } from "@/lib/profile-feed";
 import { updateProfileRecord, deleteProfileRecord } from "@/lib/account-actions";
-import { isSuccessfulFlutterwaveResponse } from "@/lib/payment-flow";
+import { confirmPaymentRpcArgs, isSuccessfulFlutterwaveResponse } from "@/lib/payment-flow";
 import { PAYMENT_SUCCESS_MESSAGE, canCelebrateAfterCheckoutClose } from "@/lib/payment-success";
+import { completeVerifiedPayment } from "@/lib/payment-callback";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -221,17 +222,20 @@ export default function Home() {
     paymentCelebratedRef.current = false;
     paymentStatusRef.current = undefined;
     setPaymentBusy(true);
-    (window as any).FlutterwaveCheckout({ public_key: publicKey, tx_ref: `RD-${Date.now()}`, amount: 1500, currency: "NGN", payment_options: "card, ussd, banktransfer", customer: { email: session.user.email, name: session.user.user_metadata?.full_name || "Request Date member" }, customizations: { title: "Request Date Premium", description: "Unlimited WhatsApp access for life" }, callback: async (data: any) => {
+    const checkout = (window as any).FlutterwaveCheckout({ public_key: publicKey, tx_ref: `RD-${Date.now()}`, amount: 1500, currency: "NGN", payment_options: "card, ussd, banktransfer", customer: { email: session.user.email, name: session.user.user_metadata?.full_name || "Request Date member" }, customizations: { title: "Request Date Premium", description: "Unlimited WhatsApp access for life" }, callback: async (data: any) => {
       if (!isSuccessfulFlutterwaveResponse(data) || !supabase) { setPaymentBusy(false); return; }
       try {
         const verification = await fetch("/api/payments/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ transaction_id: data.transaction_id, access_token: session.access_token }) });
         const result = await verification.json();
         if (!verification.ok || !result.success) throw new Error(result.error || "Payment verification failed.");
-        paymentStatusRef.current = data.status;
-        paymentVerifiedRef.current = true;
-        setPaid(true);
-        setAccountProfile((current) => current ? { ...current, has_paid: true } : current);
-        await loadProfiles(true);
+        const { tx_ref, flw_ref_id } = confirmPaymentRpcArgs(data);
+        const completion = await completeVerifiedPayment({ client: supabase, rpcArgs: { tx_ref, flw_ref_id }, userId: session.user.id, onPaid: () => {
+          paymentStatusRef.current = data.status;
+          paymentVerifiedRef.current = true;
+          setPaid(true);
+          setAccountProfile((current) => current ? { ...current, has_paid: true } : current);
+        }, refreshPaidProfile: loadPaidAccess, refreshOwnProfile: (userId) => loadOwnProfile(userId, false), refreshProfiles: () => loadProfiles(true), checkout, onCheckoutCloseUnavailable: () => toast.info("Payment verified. Close the checkout window to finish unlocking access.") });
+        if (!completion.checkoutClosed) checkoutClosedRef.current = false;
       } catch (error: any) { toast.error(error?.message || "Payment verification failed."); paymentVerifiedRef.current = false; }
       finally { setPaymentBusy(false); celebratePayment(); }
     }, onclose: () => { checkoutClosedRef.current = true; setPaymentBusy(false); celebratePayment(); } });

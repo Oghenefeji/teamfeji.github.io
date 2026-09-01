@@ -96,3 +96,18 @@
 - [x] Prepare a safe current-source export without secrets or generated artifacts
 - [x] Push all current changes to the connected GitHub repositories
 - [x] Verify the resulting remote commits and file contents
+
+- [x] Add the `confirm_user_payment` Supabase RPC with authenticated self-service and idempotent payment recording
+- [x] Replace direct browser paid-status persistence with the RPC call in the Flutterwave success/completed callback
+- [x] Refresh the current user profile and unlock all live WhatsApp links immediately after RPC success
+- [x] Close the payment flow and preserve the celebration/toast behavior after RPC confirmation
+- [x] Add regression coverage for RPC payloads and payment callback state synchronization
+- [x] Run type checks, tests, and production build; live RPC compatibility check remains pending schema reapplication remains pending schema reapplication
+- [ ] Push the verified RPC payment fix to both connected GitHub repositories
+- [ ] Reapply the latest schema containing `payment_claims` and `confirm_user_payment` in the live Supabase SQL Editor
+- [ ] Run one authenticated live RPC smoke test after the latest schema is applied
+- [x] Add a testable post-verification callback helper proving RPC success refreshes paid profile state and live feed
+- [x] Explicitly close or confirm closure of the Flutterwave checkout after RPC confirmation
+- [x] Add regression coverage for callback state synchronization and checkout-close celebration timing
+- [ ] Handle Flutterwave close-helper failure with an explicit fallback status and user-visible payment-flow recovery
+- [ ] Add integrated callback-lifecycle coverage for RPC success, refreshes, close handling, and post-close celebration gating
