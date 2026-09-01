@@ -102,12 +102,14 @@
 - [x] Refresh the current user profile and unlock all live WhatsApp links immediately after RPC success
 - [x] Close the payment flow and preserve the celebration/toast behavior after RPC confirmation
 - [x] Add regression coverage for RPC payloads and payment callback state synchronization
-- [x] Run type checks, tests, and production build; live RPC compatibility check remains pending schema reapplication remains pending schema reapplication
-- [ ] Push the verified RPC payment fix to both connected GitHub repositories
+- [x] Run type checks, tests, and production build; live RPC compatibility check remains pending schema reapplication
+- [x] Push the verified RPC payment fix to both connected GitHub repositories
 - [ ] Reapply the latest schema containing `payment_claims` and `confirm_user_payment` in the live Supabase SQL Editor
 - [ ] Run one authenticated live RPC smoke test after the latest schema is applied
 - [x] Add a testable post-verification callback helper proving RPC success refreshes paid profile state and live feed
 - [x] Explicitly close or confirm closure of the Flutterwave checkout after RPC confirmation
 - [x] Add regression coverage for callback state synchronization and checkout-close celebration timing
-- [ ] Handle Flutterwave close-helper failure with an explicit fallback status and user-visible payment-flow recovery
-- [ ] Add integrated callback-lifecycle coverage for RPC success, refreshes, close handling, and post-close celebration gating
+- [x] Handle Flutterwave close-helper failure with an explicit fallback status and user-visible payment-flow recovery
+- [x] Add integrated callback-lifecycle coverage for RPC success, refreshes, close handling, and post-close celebration gating
+- [x] Add one end-to-end regression test covering RPC success, local paid update, paid/own/feed refreshes, checkout close/fallback, and one-time celebration gating
+- [x] Extend the end-to-end lifecycle regression to assert both explicit checkout close and close-helper fallback outcomes while preserving one-time celebration gating
