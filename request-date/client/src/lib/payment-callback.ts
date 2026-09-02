@@ -1,21 +1,34 @@
-type PaymentClient = {
-  rpc: (functionName: "confirm_user_payment", args: { tx_ref: string; flw_ref_id: string }) => any;
+type RpcClient = {
+  rpc: (functionName: string, args: Record<string, string>) => any;
 };
 
-type CompleteUnlockOptions = {
-  client: PaymentClient;
-  txRef: string;
-  flwRefId: string;
-  checkout: unknown;
+type ConfirmAndRefreshOptions = {
+  client: RpcClient;
+  rpcArgs: Record<string, string>;
+  userId: string;
   onPaid: () => void;
-  refreshFeed: () => Promise<void>;
+  refreshPaidProfile: (userId: string) => Promise<void>;
+  refreshOwnProfile: (userId: string) => Promise<void>;
+  refreshProfiles: () => Promise<void>;
+  checkout: unknown;
   onCheckoutCloseUnavailable: () => void;
 };
 
-export async function confirmUserPayment(client: PaymentClient, txRef: string, flwRefId: string) {
-  const { error } = await client.rpc("confirm_user_payment", { tx_ref: txRef, flw_ref_id: flwRefId }) as { error: unknown | null };
+export async function confirmPaymentAndRefresh({ client, rpcArgs, userId, onPaid, refreshPaidProfile, refreshOwnProfile, refreshProfiles }: Omit<ConfirmAndRefreshOptions, "checkout" | "onCheckoutCloseUnavailable">) {
+  const { error } = await client.rpc("confirm_user_payment", rpcArgs) as { error: unknown | null };
   if (error) throw error;
+  onPaid();
+  await refreshPaidProfile(userId);
+  await refreshOwnProfile(userId);
+  await refreshProfiles();
   return { confirmed: true } as const;
+}
+
+export async function completeVerifiedPayment(options: ConfirmAndRefreshOptions) {
+  await confirmPaymentAndRefresh(options);
+  const checkoutClosed = closeFlutterwaveCheckout(options.checkout);
+  if (!checkoutClosed) options.onCheckoutCloseUnavailable();
+  return { confirmed: true, checkoutClosed } as const;
 }
 
 export function closeFlutterwaveCheckout(checkout: unknown) {
@@ -27,13 +40,4 @@ export function closeFlutterwaveCheckout(checkout: unknown) {
   } catch {
     return false;
   }
-}
-
-export async function completePaymentUnlock(options: CompleteUnlockOptions) {
-  await confirmUserPayment(options.client, options.txRef, options.flwRefId);
-  options.onPaid();
-  const checkoutClosed = closeFlutterwaveCheckout(options.checkout);
-  if (!checkoutClosed) options.onCheckoutCloseUnavailable();
-  await options.refreshFeed();
-  return { confirmed: true, checkoutClosed } as const;
 }
