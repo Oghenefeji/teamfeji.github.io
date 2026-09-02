@@ -14,13 +14,4 @@ describe("payment persistence security", () => {
     expect(schema).toContain("flw_ref text");
     expect(schema).toContain("alter table public.payments add column if not exists flw_ref text;");
   });
-
-  it("requires a short-lived server-created claim before the RPC can unlock access", () => {
-    expect(schema).toContain("create table if not exists public.payment_claims");
-    expect(schema).toContain("create or replace function public.confirm_user_payment(tx_ref text, flw_ref_id text)");
-    expect(schema).toContain("grant execute on function public.confirm_user_payment(text, text) to authenticated;");
-    expect(schema).toContain("c.status = 'verified'");
-    expect(schema).toContain("c.expires_at > now()");
-    expect(schema).toContain("delete from public.payment_claims");
-  });
 });

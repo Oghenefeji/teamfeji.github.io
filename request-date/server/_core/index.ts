@@ -50,16 +50,13 @@ async function startServer() {
       const payment = await verification.json() as { status?: string; data?: { status?: string; amount?: number; currency?: string; tx_ref?: string; flw_ref?: string } };
       const verified = verification.ok && payment.status === "success" && (payment.data?.status === "successful" || payment.data?.status === "completed") && payment.data.currency === "NGN" && Number(payment.data.amount) >= 1500;
       if (!verified) return res.status(402).json({ error: "Payment could not be verified" });
-      const headers = { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates,return=minimal" };
+      const headers = { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, "Content-Type": "application/json", Prefer: "resolution=merge-duplicates" };
       const reference = payment.data?.tx_ref || String(transaction_id);
-      const flutterwaveReference = payment.data?.flw_ref || String(transaction_id);
-      const existingClaimResponse = await fetch(`${supabaseUrl}/rest/v1/payment_claims?select=user_id&transaction_ref=eq.${encodeURIComponent(reference)}`, { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } });
-      if (!existingClaimResponse.ok) return res.status(500).json({ error: "Could not inspect payment claim" });
-      const existingClaims = await existingClaimResponse.json() as Array<{ user_id: string }>;
-      if (existingClaims[0] && existingClaims[0].user_id !== member.id) return res.status(409).json({ error: "Payment reference is already assigned" });
-      const claim = await fetch(`${supabaseUrl}/rest/v1/payment_claims?on_conflict=transaction_ref`, { method: "POST", headers, body: JSON.stringify({ user_id: member.id, transaction_ref: reference, flw_ref: flutterwaveReference, amount: 1500, status: "verified", expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString() }) });
-      if (!claim.ok) return res.status(500).json({ error: "Could not persist payment verification claim" });
-      return res.json({ success: true, user_id: member.id, tx_ref: reference, flw_ref: flutterwaveReference });
+      const saved = await fetch(`${supabaseUrl}/rest/v1/payments`, { method: "POST", headers, body: JSON.stringify({ user_id: member.id, transaction_ref: reference, flw_ref: payment.data?.flw_ref || String(transaction_id), amount: 1500, status: "successful" }) });
+      if (!saved.ok && saved.status !== 409) return res.status(500).json({ error: "Could not persist payment" });
+      const unlocked = await fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${member.id}`, { method: "PATCH", headers, body: JSON.stringify({ has_paid: true }) });
+      if (!unlocked.ok) return res.status(500).json({ error: "Could not unlock access" });
+      return res.json({ success: true, user_id: member.id });
     } catch (error) { console.error("[Payments] Verification failed", error); return res.status(500).json({ error: "Payment verification failed" }); }
   });
   registerStorageProxy(app);

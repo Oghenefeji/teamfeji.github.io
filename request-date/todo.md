@@ -91,25 +91,10 @@
 - [x] Extract the verified-and-closed celebration gate used by the payment callback lifecycle
 - [x] Test that the celebration gate waits for checkout close and cannot fire twice for one payment
 - [x] Re-run the full regression suite and visual verification after lifecycle coverage
-
-- [x] Inspect current Request Date changes and connected GitHub repository export state
-- [x] Prepare a safe current-source export without secrets or generated artifacts
-- [x] Push all current changes to the connected GitHub repositories
-- [x] Verify the resulting remote commits and file contents
-
-- [x] Add the `confirm_user_payment` Supabase RPC with authenticated self-service and idempotent payment recording
-- [x] Replace direct browser paid-status persistence with the RPC call in the Flutterwave success/completed callback
-- [x] Refresh the current user profile and unlock all live WhatsApp links immediately after RPC success
-- [x] Close the payment flow and preserve the celebration/toast behavior after RPC confirmation
-- [x] Add regression coverage for RPC payloads and payment callback state synchronization
-- [x] Run type checks, tests, and production build; live RPC compatibility verified after schema reapplication
-- [x] Push the verified RPC payment fix to both connected GitHub repositories
-- [x] Reapply the latest schema containing `payment_claims` and `confirm_user_payment` in the live Supabase SQL Editor
-- [x] Run one authenticated live RPC smoke test after the latest schema is applied
-- [x] Add a testable post-verification callback helper proving RPC success refreshes paid profile state and live feed
-- [x] Explicitly close or confirm closure of the Flutterwave checkout after RPC confirmation
-- [x] Add regression coverage for callback state synchronization and checkout-close celebration timing
-- [x] Handle Flutterwave close-helper failure with an explicit fallback status and user-visible payment-flow recovery
-- [x] Add integrated callback-lifecycle coverage for RPC success, refreshes, close handling, and post-close celebration gating
-- [x] Add one end-to-end regression test covering RPC success, local paid update, paid/own/feed refreshes, checkout close/fallback, and one-time celebration gating
-- [x] Extend the end-to-end lifecycle regression to assert both explicit checkout close and close-helper fallback outcomes while preserving one-time celebration gating
+- [x] Switch the profile feed to `get_paid_profiles` for paid users and `public_profiles` for unpaid users
+- [x] Update the Flutterwave callback to set local `has_paid`, close checkout, and trigger a complete feed refresh after RPC success
+- [x] Add regression coverage for paid/unpaid feed query selection and post-payment feed refresh
+- [x] Re-run type checks, tests, and production build after the payment unlock fix
+- [x] Push and verify the updated implementation in both connected GitHub repositories
+- [ ] Push the current post-payment unlock and paid-feed switching changes to both connected GitHub repositories
+- [ ] Verify both remote repositories contain the updated feed helper, payment callback helper, Home page, and payment regression tests

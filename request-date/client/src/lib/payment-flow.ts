@@ -12,10 +12,3 @@ export function isSuccessfulFlutterwaveResponse(response: FlutterwaveCallbackRes
 export function paymentTransactionRef(response: FlutterwaveCallbackResponse) {
   return response.tx_ref || `RD-${Date.now()}`;
 }
-
-export function confirmPaymentRpcArgs(response: FlutterwaveCallbackResponse, fallbackTxRef = `RD-${Date.now()}`) {
-  return {
-    tx_ref: response.tx_ref || fallbackTxRef,
-    flw_ref_id: String(response.flw_ref || response.transaction_id || ""),
-  };
-}

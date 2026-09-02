@@ -3,7 +3,7 @@ import { fetchLiveProfiles } from "../client/src/lib/profile-feed";
 import { updateProfileRecord, deleteProfileRecord } from "../client/src/lib/account-actions";
 
 describe("live Supabase feed and account actions", () => {
-  it("requests live profiles in descending creation order and uses the safe view when needed", async () => {
+  it("uses only the privacy-safe public view for unpaid browsing", async () => {
     const calls: string[] = [];
     const client = {
       from: (table: string) => ({
@@ -11,7 +11,7 @@ describe("live Supabase feed and account actions", () => {
           calls.push(`${table}.select(${columns})`);
           return { order: async (column: string, options: { ascending: boolean }) => {
             calls.push(`order(${column},${options.ascending})`);
-            return table === "profiles" ? { data: null, error: { message: "RLS" } } : { data: [{ id: "live-1", full_name: "Live member" }], error: null };
+            return { data: [{ id: "live-1", full_name: "Live member" }], error: null };
           } };
         },
       }),
@@ -19,9 +19,18 @@ describe("live Supabase feed and account actions", () => {
     };
     const profiles = await fetchLiveProfiles(client as any, false);
     expect(profiles).toEqual([{ id: "live-1", full_name: "Live member" }]);
-    expect(calls).toContain("profiles.select(*)");
-    expect(calls).toContain("public_profiles.select(*)");
-    expect(calls).toContain("order(created_at,false)");
+    expect(calls).toEqual(["public_profiles.select(*)", "order(created_at,false)"]);
+  });
+
+  it("uses the paid RPC so WhatsApp numbers are returned after unlock", async () => {
+    const calls: string[] = [];
+    const client = {
+      from: () => { throw new Error("paid browsing must not query a public table"); },
+      rpc: async (name: string) => { calls.push(name); return { data: [{ id: "live-1", full_name: "Live member", whatsapp_number: "08012345678" }], error: null }; },
+    };
+    const profiles = await fetchLiveProfiles(client as any, true);
+    expect(profiles).toEqual([{ id: "live-1", full_name: "Live member", whatsapp_number: "08012345678" }]);
+    expect(calls).toEqual(["get_paid_profiles"]);
   });
 
   it("routes profile updates and deletion through the profiles table", async () => {
