@@ -118,5 +118,5 @@
 - [x] Add regression coverage for paid/unpaid feed query selection and post-payment feed refresh
 - [x] Re-run type checks, tests, and production build after the payment unlock fix
 - [x] Push and verify the updated implementation in both connected GitHub repositories
-- [ ] Push the corrected clean-clone implementation to both connected GitHub repositories
-- [ ] Verify both remote repositories contain the final paid/unpaid feed switch and preserved RPC payment-hardening files
+- [x] Push the corrected clean-clone implementation to both connected GitHub repositories
+- [x] Verify both remote repositories contain the final paid/unpaid feed switch and preserved RPC payment-hardening files
