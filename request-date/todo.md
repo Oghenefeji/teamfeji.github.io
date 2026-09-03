@@ -127,5 +127,6 @@
 - [x] Run TypeScript, tests, and production build verification
 - [x] Push and verify the final source in both connected GitHub repositories
 - [x] Use the required `manual` fallback for missing Flutterwave references and log RPC confirmation errors before showing the toast
-- [ ] Push the latest manual-reference fallback, RPC warning, payment-flow test, and checklist changes to both connected GitHub repositories
-- [ ] Verify both remote main branches contain the latest fallback, warning, and regression-test updates
+- [x] Push the latest manual-reference fallback, RPC warning, payment-flow test, and checklist changes to both connected GitHub repositories
+- [x] Verify both remote main branches contain the latest fallback, warning, and regression-test updates
+- [x] Verify both remote main branches contain the updated `payment-flow.test.ts` assertion for the `manual` `flw_ref_id` fallback
