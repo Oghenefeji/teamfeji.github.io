@@ -236,7 +236,7 @@ export default function Home() {
           setAccountProfile((current) => current ? { ...current, has_paid: true } : current);
         }, refreshPaidProfile: loadPaidAccess, refreshOwnProfile: (userId) => loadOwnProfile(userId, false), refreshProfiles: () => loadProfiles(true), checkout, onCheckoutCloseUnavailable: () => toast.info("Payment verified. Close the checkout window to finish unlocking access.") });
         if (!completion.checkoutClosed) checkoutClosedRef.current = false;
-      } catch (error: any) { toast.error(error?.message || "Payment verification failed."); paymentVerifiedRef.current = false; }
+      } catch (error: any) { console.warn("Payment confirmation failed", error); toast.error(error?.message || "Payment verification failed."); paymentVerifiedRef.current = false; }
       finally { setPaymentBusy(false); celebratePayment(); }
     }, onclose: () => { checkoutClosedRef.current = true; setPaymentBusy(false); celebratePayment(); } });
   }

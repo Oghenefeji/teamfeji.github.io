@@ -16,5 +16,6 @@ describe("payment flow", () => {
   it("builds the authenticated RPC payload from Flutterwave references", () => {
     expect(confirmPaymentRpcArgs({ tx_ref: "RD-123", flw_ref: "FLW-456", transaction_id: 789 })).toEqual({ tx_ref: "RD-123", flw_ref_id: "FLW-456" });
     expect(confirmPaymentRpcArgs({ transaction_id: 789 }, "RD-fallback")).toEqual({ tx_ref: "RD-fallback", flw_ref_id: "789" });
+    expect(confirmPaymentRpcArgs({ tx_ref: "RD-empty" })).toEqual({ tx_ref: "RD-empty", flw_ref_id: "manual" });
   });
 });

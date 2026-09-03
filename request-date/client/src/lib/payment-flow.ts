@@ -16,6 +16,6 @@ export function paymentTransactionRef(response: FlutterwaveCallbackResponse) {
 export function confirmPaymentRpcArgs(response: FlutterwaveCallbackResponse, fallbackTxRef = `RD-${Date.now()}`) {
   return {
     tx_ref: response.tx_ref || fallbackTxRef,
-    flw_ref_id: String(response.flw_ref || response.transaction_id || ""),
+    flw_ref_id: String(response.flw_ref || response.transaction_id || "manual"),
   };
 }

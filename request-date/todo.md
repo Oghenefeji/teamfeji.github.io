@@ -120,3 +120,12 @@
 - [x] Push and verify the updated implementation in both connected GitHub repositories
 - [x] Push the corrected clean-clone implementation to both connected GitHub repositories
 - [x] Verify both remote repositories contain the final paid/unpaid feed switch and preserved RPC payment-hardening files
+- [x] Ensure the Flutterwave successful/completed callback calls `confirm_user_payment` with the required transaction references and handles RPC errors visibly
+- [x] Immediately set local `has_paid`, close checkout, and refresh the feed through `get_paid_profiles` after confirmed payment
+- [x] Ensure unpaid feed reads only from `public_profiles` and paid feed reads from `get_paid_profiles`
+- [x] Add or update regression coverage for callback payloads, state synchronization, and paid/unpaid feed routing
+- [x] Run TypeScript, tests, and production build verification
+- [x] Push and verify the final source in both connected GitHub repositories
+- [x] Use the required `manual` fallback for missing Flutterwave references and log RPC confirmation errors before showing the toast
+- [ ] Push the latest manual-reference fallback, RPC warning, payment-flow test, and checklist changes to both connected GitHub repositories
+- [ ] Verify both remote main branches contain the latest fallback, warning, and regression-test updates
